@@ -6,7 +6,7 @@ require 'rubygems'
 
 require 'tagore'
 require 'tagore/deployer'
-#require 'tagore/router'
+require 'tagore/router'
 
 trap(:INT) { puts; exit }
 

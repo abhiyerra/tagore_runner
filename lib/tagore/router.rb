@@ -1,12 +1,11 @@
 module Tagore
-  NGINX_EXEC = "/usr/local/bin/nginx"
-  SERVICES_URL = "http://localhost:3001/services.json"
-
   class Router
+    NGINX_EXEC = "/usr/local/bin/nginx"
+    SERVICES_URL = "http://localhost:3001/services.json"
 
     def self.run!
-      deployer = self.new
-      deployer.looper
+      router = self.new
+      router.looper
     end
 
     def initialize
@@ -31,6 +30,10 @@ module Tagore
         opts.on("-f", "--file NGINX_FILE", "nginx.conf file") do |nginx_file|
           @nginx_file = nginx_file
         end
+
+        opts.on("-c", "--config NGINX_CONF_FILE", "nginx.conf file") do |nginx_conf|
+          @nginx_conf = nginx_conf
+        end
       end.parse!
     end
 
@@ -41,7 +44,7 @@ module Tagore
     private :update_services
 
     def generate_config
-      file = File.open('nginx.conf.erb').read
+      file = File.open(@nginx_conf).read
       template = ERB.new(file)
       services = @services
       @config = template.result(binding)
@@ -49,7 +52,7 @@ module Tagore
     private :generate_config
 
     def update_config_file
-      File.open('nginx.conf', 'w+') do |f|
+      File.open(@nginx_file, 'w+') do |f|
         f << @config
       end
     end
