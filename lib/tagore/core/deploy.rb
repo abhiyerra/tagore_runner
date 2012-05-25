@@ -23,6 +23,18 @@ module Tagore
         # other services can't fuck with things.
       end
 
+      def stop_foreman(pid)
+        if pid
+          Process.kill "QUIT", @services[service_id]
+          # puts `cd #{@deploy_dir}#{service["name"]} && foreman stop`
+        end
+      end
+
+      def notify_server
+        #      response = Typhoeus::Request.post(@server + "/services/" service_id + "/posts")
+      end
+
+
       def fork_and_run
         fork do
           exec("cd #{@deploy_dir}#{@service["name"]} && PORT=#{@port} foreman start -c web=4 -p #{@port}")

@@ -54,20 +54,13 @@ module Tagore
 
     def deploy(service_id, commit)
       service = Tagore::Core::Service.info(service_id)
-
       @current_port += 1000
-      port = @current_port
 
-      deploy = Core::Deploy.new(@deploy_dir, service, commit, port)
+      deploy = Core::Deploy.new(@deploy_dir, service, commit, @current_port)
       deploy.setup
+      deploy.stop_foreman(@services[service_id])
       deploy.deploy
-
-      if @services[service_id]
-        Process.kill "QUIT", @services[service_id]
-        # puts `cd #{@deploy_dir}#{service["name"]} && foreman stop`
-      end
-
-#      response = Typhoeus::Request.post(@server + "/services/" service_id + "/posts")
+      deploy.notify_server
 
       @services[service_id] = deploy.fork_and_run
     end
