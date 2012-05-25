@@ -1,8 +1,9 @@
+require 'tagore/core/service'
 require 'tagore/core/deploy'
 
 module Tagore
   class Deployer
-    START_PORT
+    START_PORT = 5000
 
     def self.run!
       deployer = self.new
@@ -59,7 +60,7 @@ module Tagore
       @current_port += 1000
       port = @current_port
 
-      deploy = Core::Deploy.new(@deploy_dir, service, commit)
+      deploy = Core::Deploy.new(@deploy_dir, service, commit, port)
       deploy.setup
       deploy.deploy
 
