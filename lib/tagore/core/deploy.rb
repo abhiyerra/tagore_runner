@@ -6,6 +6,7 @@ module Tagore
         @commit = commit
         @deploy_dir = deploy_dir
         @deploy_loc = "#{deploy_dir}#{@service["name"]}"
+        @port = port
       end
 
       # Clone the repo if it's not already checked out.

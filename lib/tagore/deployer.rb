@@ -1,6 +1,3 @@
-require 'tagore/core/service'
-require 'tagore/core/deploy'
-
 module Tagore
   class Deployer
     START_PORT = 5000
@@ -14,7 +11,8 @@ module Tagore
       option_parser
 
       @redis = Redis.new
-      @service_url = "#{@server}/services/"
+
+      Tagore::Core::Service.host = @server
 
       @services = {}
 
@@ -55,7 +53,7 @@ module Tagore
     end
 
     def deploy(service_id, commit)
-      service = Service.info(service_id)
+      service = Tagore::Core::Service.info(service_id)
 
       @current_port += 1000
       port = @current_port
@@ -69,7 +67,7 @@ module Tagore
         # puts `cd #{@deploy_dir}#{service["name"]} && foreman stop`
       end
 
-      response = Typhoeus::Request.post(@service_url + service_id + "/posts")
+#      response = Typhoeus::Request.post(@server + "/services/" service_id + "/posts")
 
       @services[service_id] = deploy.fork_and_run
     end

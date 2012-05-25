@@ -1,14 +1,25 @@
 module Tagore
   module Core
     class Service
-      include HTTParty
+#      include HTTParty
+
+      @@host = ""
+
+      def self.host
+        @@host
+      end
+
+      def self.host=(host)
+        @@host = host
+      end
+
 
       def available_ports
 
       end
 
-      def info(service_id)
-        response = Typhoeus::Request.get(@service_url + service_id + ".json")
+      def self.info(service_id)
+        response = Typhoeus::Request.get(self.host + "/services/" + service_id + ".json")
         service = JSON.parse(response.body)
       end
     end
