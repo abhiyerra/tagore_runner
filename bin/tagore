@@ -1,0 +1,20 @@
+#!/usr/bin/env ruby
+
+$:.push("lib")
+
+require 'rubygems'
+
+require 'tagore'
+require 'tagore/deployer'
+#require 'tagore/router'
+
+trap(:INT) { puts; exit }
+
+case ARGV[0].downcase
+when "deployer"
+  Tagore::Deployer.run!
+when "router"
+  Tagore::Router.run!
+else
+  puts "Eh, wtf mate?"
+end
