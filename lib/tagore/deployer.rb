@@ -1,7 +1,8 @@
-module Tagore
-  DEPLOY_DIR = "/Users/abhi/deployer/"
+require 'tagore/core/deploy'
 
+module Tagore
   class Deployer
+    START_PORT
 
     def self.run!
       deployer = self.new
@@ -12,9 +13,6 @@ module Tagore
       option_parser
 
       @redis = Redis.new
-      @used_ports = {}
-      @current_port = 5000
-
       @service_url = "#{@server}/services/"
 
       @services = {}
@@ -33,10 +31,19 @@ module Tagore
         opts.on("-d", "--deploy-dir DEPLOY_DIR", "WHere files should be deployed to") do |deploy_dir|
           @deploy_dir = deploy_dir
         end
+
+        opts.on("-p", "--port PORT", "WHere files should be deployed to") do |port|
+          @current_port = port
+        end
       end.parse!
 
       @server = "http://127.0.0.1:3001" unless @server
-      @deploy_dir = DEPLOY_DIR unless @deploy_dir
+      @current_port = START_PORT unless @current_port
+
+      unless @deploy_dir
+        puts "Deploy dir is not set"
+        exit
+      end
     end
 
     # TODO: Need to actually prevent deployment if the servier is out of
@@ -47,23 +54,14 @@ module Tagore
     end
 
     def deploy(service_id, commit)
-      response = Typhoeus::Request.get(@service_url + service_id + ".json")
+      service = Service.info(service_id)
 
-      service = JSON.parse(response.body)
       @current_port += 1000
       port = @current_port
 
-      deploy_loc = "#{@deploy_dir}#{service["name"]}"
-      # if not directory exists
-      unless File.directory?(deploy_loc)
-        puts `cd #{@deploy_dir} && git clone #{service["repo"]} #{service["name"]}`
-      end
-
-      puts `cd #{@deploy_dir}#{service["name"]} && git checkout master && git pull --rebase && git checkout #{commit}`
-      # TODO: Create forman file
-
-      # TODO: Should start the forman service in a restricted mode so
-      # other services can't fuck with things.
+      deploy = Core::Deploy.new(@deploy_dir, service, commit)
+      deploy.setup
+      deploy.deploy
 
       if @services[service_id]
         Process.kill "QUIT", @services[service_id]
@@ -72,10 +70,7 @@ module Tagore
 
       response = Typhoeus::Request.post(@service_url + service_id + "/posts")
 
-      @services[service_id] = fork do
-        exec("cd #{@deploy_dir}#{service["name"]} && PORT=#{port} foreman start -c web=4 -p #{port}")
-      end
-
+      @services[service_id] = deploy.fork_and_run
     end
 
     def looper
