@@ -1,0 +1,5 @@
+require 'rubygems'
+require 'yaml'
+require 'time'
+require 'typhoeus'
+require 'nokogiri'
