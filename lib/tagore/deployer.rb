@@ -1,10 +1,3 @@
-require 'rubygems'
-require "redis"
-require 'typhoeus'
-require 'json'
-require 'ruby-debug'
-require 'optparse'
-
 module Tagore
   DEPLOY_DIR = "/Users/abhi/deployer/"
 
@@ -74,7 +67,7 @@ module Tagore
 
       if @services[service_id]
         Process.kill "QUIT", @services[service_id]
-        #      puts `cd #{@deploy_dir}#{service["name"]} && foreman stop`
+        # puts `cd #{@deploy_dir}#{service["name"]} && foreman stop`
       end
 
       response = Typhoeus::Request.post(@service_url + service_id + "/posts")

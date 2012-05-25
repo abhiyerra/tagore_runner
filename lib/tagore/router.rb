@@ -1,10 +1,3 @@
-require 'rubygems'
-require "redis"
-require 'erb'
-require 'typhoeus'
-require 'json'
-require 'ruby-debug'
-
 module Tagore
   NGINX_EXEC = "/usr/local/bin/nginx"
   SERVICES_URL = "http://localhost:3001/services.json"
