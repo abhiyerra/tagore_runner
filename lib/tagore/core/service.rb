@@ -15,6 +15,11 @@ module Tagore
         @@host = host
       end
 
+      def self.services
+        response = get("/services.json")
+        JSON.parse(response.body)
+      end
+
       def self.started!(service_id, port)
         post("/services/#{service_id}/started", :params => {
             # :machine_id => machine_id,

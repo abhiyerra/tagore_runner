@@ -1,8 +1,5 @@
 module Tagore
   class Router
-    NGINX_EXEC = "/usr/local/bin/nginx"
-    SERVICES_URL = "http://localhost:3001/services.json"
-
     def self.run!
       router = self.new
       router.looper
@@ -14,7 +11,7 @@ module Tagore
       @redis = Redis.new
       @services = []
 
-      puts "#{@server} - #{@nginx_file}"
+      puts "#{@server} - #{@nginx_erb}"
 
       provision
     end
@@ -27,8 +24,8 @@ module Tagore
           @server = server
         end
 
-        opts.on("-f", "--file NGINX_FILE", "nginx.conf file") do |nginx_file|
-          @nginx_file = nginx_file
+        opts.on("-f", "--file NGINX_ERB", "nginx.conf file") do |nginx_erb|
+          @nginx_erb = nginx_erb
         end
 
         opts.on("-c", "--config NGINX_CONF_FILE", "nginx.conf file") do |nginx_conf|
@@ -37,36 +34,11 @@ module Tagore
       end.parse!
     end
 
-    def update_services
-      response = Typhoeus::Request.get(SERVICES_URL)
-      @services = JSON.parse(response.body)
-    end
-    private :update_services
-
-    def generate_config
-      file = File.open(@nginx_conf).read
-      template = ERB.new(file)
-      services = @services
-      @config = template.result(binding)
-    end
-    private :generate_config
-
-    def update_config_file
-      File.open(@nginx_file, 'w+') do |f|
-        f << @config
-      end
-    end
-    private :update_config_file
-
     def provision
-      update_services
-      generate_config
-      update_config_file
-      # Check if the nginx file is valid.
-      # Update the symlink to the new nginx file
-      unless `#{NGINX_EXEC} -s reload`.empty?
-        puts "uh oh"
-      end
+      nginx = Tagore::Core::Nginx.new(@nginx_erb, @nginx_file)
+      nginx.generate(Tagore::Core::Service.services)
+      nginx.save!
+      nginx.deploy!
     end
 
     def looper
