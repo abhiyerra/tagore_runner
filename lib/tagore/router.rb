@@ -2,6 +2,7 @@ module Tagore
   class Router
     def self.run!
       router = self.new
+      router.provision # Want to provision the first time around.
       router.looper
     end
 
@@ -12,8 +13,6 @@ module Tagore
       @services = []
 
       puts "#{@server} - #{@nginx_erb}"
-
-      provision
     end
 
     def option_parser
@@ -24,7 +23,7 @@ module Tagore
           @server = server
         end
 
-        opts.on("-f", "--file NGINX_ERB", "nginx.conf file") do |nginx_erb|
+        opts.on("-e", "--erb NGINX_ERB", "nginx.conf file") do |nginx_erb|
           @nginx_erb = nginx_erb
         end
 
