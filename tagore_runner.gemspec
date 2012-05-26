@@ -13,7 +13,6 @@ Gem::Specification.new do |s|
 
   s.add_dependency('redis')
   s.add_dependency('json')
-  s.add_dependency('typhoeus', '~> 0.2.4')
   s.add_dependency('rake')
   s.add_dependency('httparty')
 

@@ -2,7 +2,7 @@ require 'rubygems'
 
 require 'redis'
 require 'erb'
-require 'typhoeus'
+require 'httparty'
 require 'ruby-debug'
 require 'optparse'
 require 'json'
