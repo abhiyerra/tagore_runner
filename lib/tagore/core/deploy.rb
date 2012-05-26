@@ -23,9 +23,12 @@ module Tagore
         # other services can't fuck with things.
       end
 
-      def stop_foreman(pid)
-        if pid
-          Process.kill "QUIT", @services[service_id]
+      def stop_foreman(pservice)
+        return unless pservice
+
+        if pid = pservice[:pid]
+          Tagore::Service.app_killed(@service['id'], pservice[:ports])
+          Process.kill "QUIT", pid
           # puts `cd #{@deploy_dir}#{service["name"]} && foreman stop`
         end
       end

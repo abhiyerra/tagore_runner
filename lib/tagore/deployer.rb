@@ -62,7 +62,10 @@ module Tagore
       deploy.deploy
       deploy.notify_server
 
-      @services[service_id] = deploy.fork_and_run
+      @services[service_id] = {
+        :pid => deploy.fork_and_run,
+        :ports => @current_port,
+      }
     end
 
     def looper
